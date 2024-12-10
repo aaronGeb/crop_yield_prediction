@@ -52,4 +52,46 @@ class DataProcessing:
             data: DataFrame
         """
         return self.data.head(n).T
-    def 
+
+    def rename_observation_column(self, column_name: list) -> DataFrame:
+        """rename the observation column
+        Args:
+            column_name: name of the observation column
+        Returns:
+            data: DataFrame
+        """
+        for col in column_name:
+            if self.data[col].dtype == "object":
+                self.data[col] = (
+                    self.data[col]
+                    .str.strip()
+                    .str.lower()
+                    .str.replace(" ", "_")
+                    .str.replace("(", "")
+                    .str.replace(")", "")
+                )
+        return self.data
+
+    def select_columns(self) -> str:
+        """select columns of a specific data type
+        Args:
+            dtype: data type to select
+        Returns:
+            data: DataFrame
+        """
+        columns = self.data.select_dtypes(include="object").columns
+        return columns
+
+    def check_duplicates(self) -> bool:
+        """check for duplicates in the data
+        Returns:
+            bool
+        """
+        return self.data.duplicated().sum()
+
+    def check_missing_values(self) -> DataFrame:
+        """check for missing values in the data
+        Returns:
+            data: DataFrame
+        """
+        return self.data.isnull().sum()
