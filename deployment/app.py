@@ -10,8 +10,12 @@ sys.path.append(os.path.abspath(os.path.join("../scripts")))
 root_path = os.path.abspath("..")
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scripts')))
+from predict import CropPredictor
 
-from ../scripts.predict import CropPredictor
+from predict import CropPredictor
 
 
 soil_type_mapping = {
