@@ -11,7 +11,7 @@ root_path = os.path.abspath("..")
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from predict import CropPredictor
+from ../scripts.predict import CropPredictor
 
 
 soil_type_mapping = {
@@ -62,7 +62,7 @@ class CropYieldApp:
 
         # Input fields for user to provide feature data
         elevation = st.number_input(
-            "Elevation", min_value=0, max_value=10000, value=500
+            "Elevation", min_value=0.0, max_value=10000.00, value=500.89
         )
         latitude = st.number_input(
             "Latitude", min_value=-90.0, max_value=90.0, value=9.678
@@ -70,16 +70,16 @@ class CropYieldApp:
         longitude = st.number_input(
             "Longitude", min_value=-180.0, max_value=180.0, value=45.123
         )
-        slope = st.number_input("Slope", min_value=0, max_value=90, value=15)
-        rainfall = st.number_input("Rainfall", min_value=0, max_value=5000, value=300)
+        slope = st.number_input("Slope", min_value=0.0, max_value=90.0, value=15.90)
+        rainfall = st.number_input("Rainfall", min_value=0.0, max_value=5000.0, value=300.9)
         min_temperature_c = st.number_input(
-            "Min Temperature (°C)", min_value=-50, max_value=50, value=10
+            "Min Temperature (°C)", min_value=-50.0, max_value=50.8, value=10.0
         )
         max_temperature_c = st.number_input(
-            "Max Temperature (°C)", min_value=-50, max_value=50, value=35
+            "Max Temperature (°C)", min_value=-50.90, max_value=50.90, value=35.90
         )
         ave_temps = st.number_input(
-            "Average Temperature (°C)", min_value=-50, max_value=50, value=22
+            "Average Temperature (°C)", min_value=-50.0, max_value=50.0, value=22.6
         )
         soil_type = st.selectbox(
             "Soil Type",
@@ -151,4 +151,4 @@ class CropYieldApp:
 # Main function to run the app
 if __name__ == "__main__":
     app = CropYieldApp()
-    app.run() 
+    app.run()
