@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame
 from typing import Optional
+from sklearn.preprocessing import LabelEncoder
 
 
 class DataProcessing:
@@ -95,3 +96,22 @@ class DataProcessing:
             data: DataFrame
         """
         return self.data.isnull().sum()
+
+    def describe_data(self) -> DataFrame:
+        """describe the data
+        Returns:
+            data: DataFrame
+        """
+        return self.data.describe()
+
+    def label_encode(self, columns: list) -> DataFrame:
+        """label encode columns in the data
+        Args:
+            columns: list of columns to label encode
+        Returns:
+            data: DataFrame
+        """
+        le = LabelEncoder()
+        for col in columns:
+            self.data[col] = le.fit_transform(self.data[col])
+        return self.data
