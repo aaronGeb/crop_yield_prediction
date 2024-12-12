@@ -28,13 +28,10 @@ class CropPredictor:
             with open(self.model_path, "rb") as file:
                 self.model = pickle.load(file)  # Assign to self.model
             print("Model loaded successfully")
-            print(self.model)
+            print(f"Our model is: {self.model}")
 
         except Exception as e:
             print(f"An error occurred while loading the model: {e}")
-            raise
-        except FileNotFoundError as e:
-            print(f"Model file not found: {e}")
             raise
 
     def predict_yield(self, input_data: DataFrame):
