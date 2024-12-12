@@ -70,6 +70,8 @@ This will launch the app on http://localhost:8501
 - Soil Type: volcanic
 - pH: 5.385873
 - Crop Type: tea
+  
+![Crop Yield Prediction ](./image/Screenshot%202024-12-12%20at%2013.48.47.png)
 
 ### Model Explanation
 
