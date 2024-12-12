@@ -38,7 +38,7 @@ cd crop_yield_prediction
 ```
 3.	Install the required dependencies:
 ```
-pip install -r requirements.txt
+conda install --file environmental.yaml
 ```
 4.	Run the application:
 ```
