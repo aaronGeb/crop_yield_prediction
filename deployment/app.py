@@ -1,39 +1,59 @@
-#!/usr/bin/env python
 import os
 import sys
+import pickle
+import streamlit as st
+import pandas as pd
 
-# Set up paths first
+
+# Set up paths
 sys.path.append(os.path.abspath(os.path.join("../scripts")))
 root_path = os.path.abspath("..")
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-# Now import all required modules
-import streamlit as st
-import pandas as pd
 from predict import CropPredictor
+
+
+soil_type_mapping = {
+    "Loamy": 0,
+    "Peaty": 1,
+    "Rocky": 2,
+    "Sandy": 3,
+    "Silt": 4,
+    "Volcanic": 5,
+}
+crop_type_mapping = {
+    "Banana": 0,
+    "Cassava": 1,
+    "Coffee": 2,
+    "Maize": 3,
+    "Potato": 4,
+    "Rice": 5,
+    "Tea": 6,
+    "Wheat": 7,
+}
 
 
 class CropYieldApp:
     def __init__(self):
         # Initialize the CropPredictor and load the model
         self.model_path = os.path.join(root_path, "models/random_forest_model.pkl")
-        self.predictor = CropPredictor(model_path=self.model_path)
-        
-        # Load the model when the app is initialized
-        self.load_model()
 
-    def load_model(self):
-        """Loads the crop prediction model."""
-        if hasattr(self.predictor, "model") and self.predictor.model is not None:
-            st.success("Model already loaded successfully.")
-            return
-        try:
-            self.predictor.model = self.predictor.load_model()
-            st.success("Model loaded successfully")
-        except Exception as e:
-            st.error(f"Error loading model: {e}")
-            sys.exit(1)
+        # Ensure the predictor is initialized in session_state
+        if "predictor" not in st.session_state:
+            st.session_state.predictor = CropPredictor(model_path=self.model_path)
+            st.session_state.predictor.load_model()  # Only load once
+            st.session_state.model_loaded = (
+                True  # Flag indicating the model has been loaded
+            )
+        else:
+            # Ensure that the model is only loaded if not already in session_state
+            if (
+                not hasattr(st.session_state.predictor, "model")
+                or st.session_state.predictor.model is None
+            ):
+                st.session_state.predictor.load_model()
+                st.session_state.model_loaded = True
 
     def get_user_input(self):
         """Get user input for the crop prediction features."""
@@ -62,13 +82,30 @@ class CropYieldApp:
             "Average Temperature (°C)", min_value=-50, max_value=50, value=22
         )
         soil_type = st.selectbox(
-            "Soil Type", options=['Loamy', 'Peaty', 'Sandy', 'Silt', 'Volcanic'], index=0
-        )  # Soil type encoded as [0-5]
+            "Soil Type",
+            options=["Loamy", "Peaty", "Sandy", "Silt", "Volcanic"],
+            index=0,
+        )
         ph = st.number_input("pH", min_value=0.0, max_value=14.0, value=6.5)
-        crop_type = st.selectbox(
-            "Crop Type", options=['Banana','Cassava','Coffee','Maize','Potato','Rice','Tea','Wheat'], index=0
-        )  # Crop type encoded as [0-7]
+        # Display categorical variables
 
+        crop_type = st.selectbox(
+            "Crop Type",
+            options=[
+                "Banana",
+                "Cassava",
+                "Coffee",
+                "Maize",
+                "Potato",
+                "Rice",
+                "Tea",
+                "Wheat",
+            ],
+            index=0,
+        )
+        # Map the user input to numeric values for model prediction
+        soil_type_value = soil_type_mapping[soil_type]
+        crop_type_value = crop_type_mapping[crop_type]
         # Create a DataFrame with input features
         input_data = pd.DataFrame(
             {
@@ -80,9 +117,9 @@ class CropYieldApp:
                 "min_temperature_c": [min_temperature_c],
                 "max_temperature_c": [max_temperature_c],
                 "ave_temps": [ave_temps],
-                "soil_type": [soil_type],
+                "soil_type": [soil_type_value],
                 "ph": [ph],
-                "crop_type": [crop_type],
+                "crop_type": [crop_type_value],
             }
         )
 
@@ -92,15 +129,17 @@ class CropYieldApp:
         """Make a crop yield prediction using the provided input data."""
         if st.button("Predict"):
             try:
-                predictions = self.predictor.predict_yield(input_data)
-
-                if predictions is None or len(predictions) == 0:
-                    st.error(
-                        "Prediction could not be made. Please check the input data."
-                    )
+                if st.session_state.model_loaded:
+                    predictions = st.session_state.predictor.predict_yield(input_data)
+                    if predictions is None or len(predictions) == 0:
+                        st.error(
+                            "Prediction could not be made. Please check the input data."
+                        )
+                    else:
+                        st.write(f"Predicted Crop Yield: {predictions[0]:.4f}")
                 else:
-                    st.write(f"Predicted Crop Yield: {predictions[0]:.4f}")
-            except Exception as e:
+                    st.error("Model not loaded. Please try again.")
+            except (ValueError, AttributeError) as e:
                 st.error(f"Error during prediction: {e}")
 
     def run(self):
@@ -111,5 +150,5 @@ class CropYieldApp:
 
 # Main function to run the app
 if __name__ == "__main__":
-    app = CropYieldApp()  # Initialize the CropYieldApp
-    app.run()  # Run the app
+    app = CropYieldApp()
+    app.run() 
